@@ -37,3 +37,17 @@ il tool è in grado di calcolare Area e Perimetro inserendo al suo interno **3 d
 
 > Questo software richiede che sul dispositivo sia presente python in quanto è sviluppato su di esso.
 > Qualora vi fossero problemi riguardanti il software o proposte sul suo aggiornamento scrivere qui: leonardo.galli.milano@gmail.com
+
+** **
+
+
+
+**Lingue**
+
+> Questo codice è disponibile nelle seguenti lingue:
+
+    - Italiano
+    - English
+    - Deutch
+    - Español
+    - 中国人
