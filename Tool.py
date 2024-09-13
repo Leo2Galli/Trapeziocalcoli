@@ -6,7 +6,7 @@ import time
 class TrapezioIsosceleApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Calcolo Trapezio Isoscele")
+        self.root.title("Tool Trapezio Isoscele")
         self.root.geometry("400x400")
         self.root.minsize(300, 300)
         self.root.configure(bg="#F5F5F5")
@@ -23,7 +23,7 @@ class TrapezioIsosceleApp:
         self.label_logo.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="w")
 
         # Titolo dell'app
-        self.label_title = tk.Label(root, text="Calcolatrice Trapezio Isoscele", font=self.font_title, bg="#F5F5F5", fg="#343A40")
+        self.label_title = tk.Label(root, text="Calcolatrice Trapezio", font=self.font_title, bg="#F5F5F5", fg="#343A40")
         self.label_title.grid(row=1, column=0, columnspan=2, pady=10)
 
         # Creazione di un frame per gli input
