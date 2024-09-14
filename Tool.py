@@ -3,6 +3,7 @@ from tkinter import ttk
 from tkinter import messagebox
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import numpy as np
 
 
 class TrapezioIsosceleApp:
@@ -50,7 +51,7 @@ class TrapezioIsosceleApp:
                 "theme": "Tema",
                 "error_message": "Inserisci valori numerici validi!",
                 "error_title": "Errore",
-                "formulas": "Area = ((Base Maggiore + Base Minore) / 2) * Altezza\nPerimetro = Base Maggiore + Base Minore + 2 * Altezza"
+                "formulas": "Area = ((Base Maggiore + Base Minore) / 2) * Altezza\nPerimetro = Base Maggiore + Base Minore + 2 * Lato Obliquo"
             },
             "inglese": {
                 "title": "Isosceles Trapezoid Calculation",
@@ -62,7 +63,7 @@ class TrapezioIsosceleApp:
                 "theme": "Theme",
                 "error_message": "Enter valid numeric values!",
                 "error_title": "Error",
-                "formulas": "Area = ((Major Base + Minor Base) / 2) * Height\nPerimeter = Major Base + Minor Base + 2 * Height"
+                "formulas": "Area = ((Major Base + Minor Base) / 2) * Height\nPerimeter = Major Base + Minor Base + 2 * Slant Side"
             },
             "spagnolo": {
                 "title": "Cálculo Trapecio Isósceles",
@@ -74,7 +75,7 @@ class TrapezioIsosceleApp:
                 "theme": "Tema",
                 "error_message": "¡Ingresa valores numéricos válidos!",
                 "error_title": "Error",
-                "formulas": "Área = ((Base Mayor + Base Menor) / 2) * Altura\nPerímetro = Base Mayor + Base Menor + 2 * Altura"
+                "formulas": "Área = ((Base Mayor + Base Menor) / 2) * Altura\nPerímetro = Base Mayor + Base Menor + 2 * Lado Oblicuo"
             },
             "cinese": {
                 "title": "等腰梯形计算",
@@ -86,7 +87,7 @@ class TrapezioIsosceleApp:
                 "theme": "主题",
                 "error_message": "请输入有效的数字值！",
                 "error_title": "错误",
-                "formulas": "面积 = ((大底边 + 小底边) / 2) * 高度\n周长 = 大底边 + 小底边 + 2 * 高度"
+                "formulas": "面积 = ((大底边 + 小底边) / 2) * 高度\n周长 = 大底边 + 小底边 + 2 * 斜边"
             },
         }
 
@@ -99,8 +100,6 @@ class TrapezioIsosceleApp:
                 "   ██║   ██╔══██╗██╔══██║██╔═══╝ ██╔══╝   ███╔╝  ██║██║   ██║\n"
                 "   ██║   ██║  ██║██║  ██║██║     ███████╗███████╗██║╚██████╔╝\n"
                 "   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚══════╝╚══════╝╚═╝ ╚═════╝ \n"
-
-
             ),
             "inglese": (
                 "████████╗██████╗  █████╗ ██████╗ ███████╗███████╗██╗ ██╗   ██╗███╗   ███╗\n"
@@ -108,7 +107,7 @@ class TrapezioIsosceleApp:
                 "   ██║   ██████╔╝███████║██████╔╝█████╗    ███╔╝ ██║ ██║   ██║██╔████╔██║\n"
                 "   ██║   ██╔══██╗██╔══██║██╔═══╝ ██╔══╝   ███╔╝  ██║ ██║   ██║██║╚██╔╝██║\n"
                 "   ██║   ██║  ██║██║  ██║██║     ███████╗███████╗██║ ╚██████╔╝██║ ╚═╝ ██║\n"
-                "   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚══════╝╚══════╝╚═╝  ╚═════╝ ╚═╝     ╚═╝\n"
+                "   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚══════╝╚══════╝     ╚═════╝ ╚═╝     ╚═╝\n"
             ),
             "spagnolo": (
                 "████████╗██████╗  █████╗ ██████╗ ███████╗███████╗██████╗ ██╗██████╗ ███████╗\n"
@@ -236,12 +235,13 @@ class TrapezioIsosceleApp:
             base_minore = float(self.entry_base_minore.get())
             altezza = float(self.entry_altezza.get())
 
+            # Calcolo area e perimetro
             area = ((base_maggiore + base_minore) / 2) * altezza
-            perimetro = base_maggiore + base_minore + 2 * altezza
+            perimetro = base_maggiore + base_minore + 2 * np.sqrt((altezza**2 + ((base_maggiore - base_minore) / 2)**2))
 
             self.label_risultato.config(text=f"Area: {area:.2f}\nPerimetro: {perimetro:.2f}")
 
-            # Mostra il grafico
+            # Mostra il grafico in una finestra separata
             self.mostra_grafico(base_maggiore, base_minore, altezza)
         except ValueError:
             messagebox.showerror(self.translations[self.current_language]["error_title"],
@@ -252,21 +252,30 @@ class TrapezioIsosceleApp:
                             self.translations[self.current_language]["formulas"])
 
     def mostra_grafico(self, base_maggiore, base_minore, altezza):
+        # Crea una nuova finestra per il grafico
+        grafico_finestra = tk.Toplevel(self.root)
+        grafico_finestra.title("Grafico Trapezio Isoscele")
+
         fig, ax = plt.subplots()
         ax.set_title('Trapezio Isoscele')
         ax.set_xlabel('Base')
         ax.set_ylabel('Altezza')
 
         # Dati del trapezio
-        x = [0, base_maggiore, base_maggiore, base_minore, 0]
+        # Calcola la lunghezza dei lati obliqui
+        lato_obliquo = np.sqrt((altezza**2) + ((base_maggiore - base_minore) / 2)**2)
+
+        # Coordinate dei vertici
+        x = [0, base_maggiore, base_maggiore - (base_maggiore - base_minore) / 2, (base_maggiore - base_minore) / 2, 0]
         y = [0, 0, altezza, altezza, 0]
 
         ax.plot(x, y, marker='o')
+        ax.fill(x, y, 'b', alpha=0.1)  # Aggiunge un riempimento leggero per la chiarezza
 
-        # Mostra il grafico nell'interfaccia Tkinter
-        canvas = FigureCanvasTkAgg(fig, master=self.root)
+        # Mostra il grafico nella finestra separata
+        canvas = FigureCanvasTkAgg(fig, master=grafico_finestra)
         canvas.draw()
-        canvas.get_tk_widget().grid(row=6, column=0, columnspan=2, pady=10, padx=10, sticky="ew")
+        canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
     def change_language(self, event):
         self.current_language = self.language_menu.get()
