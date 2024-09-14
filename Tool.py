@@ -1,247 +1,278 @@
-import math
 import tkinter as tk
-from tkinter import messagebox, font
 from tkinter import ttk
-import time
+from tkinter import messagebox
 import matplotlib.pyplot as plt
-import numpy as np
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 
 class TrapezioIsosceleApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Calcolo Trapezio Simmetrico")
-        self.root.geometry("500x500")
-        self.root.minsize(400, 400)
-        self.root.configure(bg="#F5F5F5")
+        self.root.title("Calcolo Trapezio Isoscele")
+        self.current_language = "italiano"
+        self.current_theme = "light"
 
-        # Font e stili
-        self.font_title = font.Font(family="Segoe UI", size=16, weight="bold")
-        self.font_labels = font.Font(family="Segoe UI", size=12)
-        self.font_button = font.Font(family="Segoe UI", size=12, weight="bold")
-        self.font_result = font.Font(family="Segoe UI", size=12)
-        self.font_error = font.Font(family="Segoe UI", size=12, weight="bold")
-
-        # Dizionario delle traduzioni
-        self.translations = {
-            "italiano": {
-                "title": "Calcolatrice Trapezio Simmetrico",
-                "base_maggiore": "Base maggiore (B):",
-                "base_minore": "Base minore (b):",
-                "altezza": "Altezza (h):",
-                "calculate": "Calcola",
-                "formula_title": "Formule",
-                "graph_title": "Grafico Trapezio Isoscele Simmetrico",
-                "figure_title": "Figura 1",
-                "error_base": "La base maggiore deve essere maggiore della base minore.",
-                "error_value": "Inserisci valori numerici validi.",
-                "formula_text": "Area = ((B + b) * h) / 2\nPerimetro = B + b + 2 * lato obliquo\nDove lato obliquo = sqrt(((B - b) / 2) ** 2 + h ** 2)"
-            },
-            "english": {
-                "title": "Isosceles Trapezoid Calculator",
-                "base_maggiore": "Major base (B):",
-                "base_minore": "Minor base (b):",
-                "altezza": "Height (h):",
-                "calculate": "Calculate",
-                "formula_title": "Formulas",
-                "graph_title": "Isosceles Trapezoid Graph",
-                "figure_title": "Figure 1",
-                "error_base": "The major base must be greater than the minor base.",
-                "error_value": "Please enter valid numeric values.",
-                "formula_text": "Area = ((B + b) * h) / 2\nPerimeter = B + b + 2 * slant height\nWhere slant height = sqrt(((B - b) / 2) ** 2 + h ** 2)"
-            },
-            "deutch": {
-                "title": "Symmetrisches Trapez Rechner",
-                "base_maggiore": "Größere Basis (B):",
-                "base_minore": "Kleinere Basis (b):",
-                "altezza": "Höhe (h):",
-                "calculate": "Berechnen",
-                "formula_title": "Formeln",
-                "graph_title": "Symmetrisches Trapez Diagramm",
-                "figure_title": "Abbildung 1",
-                "error_base": "Die größere Basis muss größer als die kleinere Basis sein.",
-                "error_value": "Bitte geben Sie gültige numerische Werte ein.",
-                "formula_text": "Fläche = ((B + b) * h) / 2\nUmfang = B + b + 2 * Schenkelhöhe\nWobei Schenkelhöhe = sqrt(((B - b) / 2) ** 2 + h ** 2)"
-            },
-            "Español": {
-                "title": "Calculadora de Trapecio Isósceles",
-                "base_maggiore": "Base mayor (B):",
-                "base_minore": "Base menor (b):",
-                "altezza": "Altura (h):",
-                "calculate": "Calcular",
-                "formula_title": "Fórmulas",
-                "graph_title": "Gráfico de Trapecio Isósceles",
-                "figure_title": "Figura 1",
-                "error_base": "La base mayor debe ser mayor que la base menor.",
-                "error_value": "Por favor, ingrese valores numéricos válidos.",
-                "formula_text": "Área = ((B + b) * h) / 2\nPerímetro = B + b + 2 * altura inclinada\nDonde altura inclinada = sqrt(((B - b) / 2) ** 2 + h ** 2)"
-            },
-            "中国人": {
-                "title": "等腰梯形计算器",
-                "base_maggiore": "大底边 (B):",
-                "base_minore": "小底边 (b):",
-                "altezza": "高度 (h):",
-                "calculate": "计算",
-                "formula_title": "公式",
-                "graph_title": "等腰梯形图",
-                "figure_title": "图 1",
-                "error_base": "大底边必须大于小底边。",
-                "error_value": "请输入有效的数值。",
-                "formula_text": "面积 = ((B + b) * h) / 2\n周长 = B + b + 2 * 斜边\n其中斜边 = sqrt(((B - b) / 2) ** 2 + h ** 2)"
-            }
+        # Definisci i temi
+        self.theme_light = {
+            "bg": "#F0F0F0",
+            "fg": "#000000",
+            "label_fg": "#333333",
+            "button_bg": "#007BFF",
+            "button_fg": "#FFFFFF",
+            "formula_bg": "#FFFFFF",
+            "result_fg": "#333333",
+            "entry_bg": "#FFFFFF"
         }
 
-        self.current_language = "italiano"
+        self.theme_dark = {
+            "bg": "#2E2E2E",
+            "fg": "#FFFFFF",
+            "label_fg": "#DDDDDD",
+            "button_bg": "#007BFF",
+            "button_fg": "#FFFFFF",
+            "formula_bg": "#3C3C3C",
+            "result_fg": "#DDDDDD",
+            "entry_bg": "#4A4A4A"
+        }
 
-        # Etichetta per il logo
-        self.label_logo = tk.Label(root, text=self.get_logo(), font=("Courier New", 10, "bold"), bg="#F5F5F5", anchor="w", justify="left", padx=10, pady=10, fg="#0056A0")
-        self.label_logo.grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="w")
+        # Crea e applica il tema iniziale
+        self.theme = self.theme_light if self.current_theme == "light" else self.theme_dark
 
-        # Titolo dell'app
-        self.label_title = tk.Label(root, text=self.translations[self.current_language]["title"], font=self.font_title, bg="#F5F5F5", fg="#343A40")
-        self.label_title.grid(row=1, column=0, columnspan=2, pady=10)
+        # Definisci le traduzioni
+        self.translations = {
+            "italiano": {
+                "title": "Calcolo Trapezio Isoscele",
+                "base_maggiore": "Base Maggiore:",
+                "base_minore": "Base Minore:",
+                "altezza": "Altezza:",
+                "calculate": "Calcola",
+                "formula_title": "Formule",
+                "theme": "Tema",
+                "error_message": "Inserisci valori numerici validi!",
+                "error_title": "Errore",
+                "formulas": "Area = ((Base Maggiore + Base Minore) / 2) * Altezza\nPerimetro = Base Maggiore + Base Minore + 2 * Altezza"
+            },
+            "inglese": {
+                "title": "Isosceles Trapezoid Calculation",
+                "base_maggiore": "Major Base:",
+                "base_minore": "Minor Base:",
+                "altezza": "Height:",
+                "calculate": "Calculate",
+                "formula_title": "Formulas",
+                "theme": "Theme",
+                "error_message": "Enter valid numeric values!",
+                "error_title": "Error",
+                "formulas": "Area = ((Major Base + Minor Base) / 2) * Height\nPerimeter = Major Base + Minor Base + 2 * Height"
+            },
+            "spagnolo": {
+                "title": "Cálculo Trapecio Isósceles",
+                "base_maggiore": "Base Mayor:",
+                "base_minore": "Base Menor:",
+                "altezza": "Altura:",
+                "calculate": "Calcular",
+                "formula_title": "Fórmulas",
+                "theme": "Tema",
+                "error_message": "¡Ingresa valores numéricos válidos!",
+                "error_title": "Error",
+                "formulas": "Área = ((Base Mayor + Base Menor) / 2) * Altura\nPerímetro = Base Mayor + Base Menor + 2 * Altura"
+            },
+            "cinese": {
+                "title": "等腰梯形计算",
+                "base_maggiore": "大底边:",
+                "base_minore": "小底边:",
+                "altezza": "高度:",
+                "calculate": "计算",
+                "formula_title": "公式",
+                "theme": "主题",
+                "error_message": "请输入有效的数字值！",
+                "error_title": "错误",
+                "formulas": "面积 = ((大底边 + 小底边) / 2) * 高度\n周长 = 大底边 + 小底边 + 2 * 高度"
+            },
+        }
 
-        # Creazione di un frame per gli input
-        self.frame_inputs = tk.Frame(root, bg="#FFFFFF", padx=10, pady=10, borderwidth=2, relief="flat")
-        self.frame_inputs.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+        # Definisci i loghi ASCII
+        self.logos = {
+            "italiano": (
+                "████████╗██████╗  █████╗ ██████╗ ███████╗███████╗██╗ ██████╗ \n"
+                "╚══██╔══╝██╔══██╗██╔══██╗██╔══██╗██╔════╝╚══███╔╝██║██╔═══██╗\n"
+                "   ██║   ██████╔╝███████║██████╔╝█████╗    ███╔╝ ██║██║   ██║\n"
+                "   ██║   ██╔══██╗██╔══██║██╔═══╝ ██╔══╝   ███╔╝  ██║██║   ██║\n"
+                "   ██║   ██║  ██║██║  ██║██║     ███████╗███████╗██║╚██████╔╝\n"
+                "   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚══════╝╚══════╝╚═╝ ╚═════╝ \n"
 
-        # Etichette e campi di input
-        self.label_base_maggiore = tk.Label(self.frame_inputs, text=self.translations[self.current_language]["base_maggiore"], font=self.font_labels, bg="#FFFFFF", fg="#333333")
-        self.label_base_maggiore.grid(row=0, column=0, padx=5, pady=5, sticky="e")
-        self.entry_base_maggiore = tk.Entry(self.frame_inputs, font=self.font_labels, width=20, borderwidth=1, relief="solid")
-        self.entry_base_maggiore.grid(row=0, column=1, padx=5, pady=5)
 
-        self.label_base_minore = tk.Label(self.frame_inputs, text=self.translations[self.current_language]["base_minore"], font=self.font_labels, bg="#FFFFFF", fg="#333333")
-        self.label_base_minore.grid(row=1, column=0, padx=5, pady=5, sticky="e")
-        self.entry_base_minore = tk.Entry(self.frame_inputs, font=self.font_labels, width=20, borderwidth=1, relief="solid")
-        self.entry_base_minore.grid(row=1, column=1, padx=5, pady=5)
+            ),
+            "inglese": (
+                "████████╗██████╗  █████╗ ██████╗ ███████╗███████╗██╗ ██╗   ██╗███╗   ███╗\n"
+                "╚══██╔══╝██╔══██╗██╔══██╗██╔══██╗██╔════╝╚══███╔╝██║ ██║   ██║████╗ ████║\n"
+                "   ██║   ██████╔╝███████║██████╔╝█████╗    ███╔╝ ██║ ██║   ██║██╔████╔██║\n"
+                "   ██║   ██╔══██╗██╔══██║██╔═══╝ ██╔══╝   ███╔╝  ██║ ██║   ██║██║╚██╔╝██║\n"
+                "   ██║   ██║  ██║██║  ██║██║     ███████╗███████╗██║ ╚██████╔╝██║ ╚═╝ ██║\n"
+                "   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚══════╝╚══════╝╚═╝  ╚═════╝ ╚═╝     ╚═╝\n"
+            ),
+            "spagnolo": (
+                "████████╗██████╗  █████╗ ██████╗ ███████╗███████╗██████╗ ██╗██████╗ ███████╗\n"
+                "╚══██╔══╝██╔══██╗██╔══██╗██╔══██╗██╔════╝╚══███╔╝██╔═══██╗██║██╔══██╗██╔════╝\n"
+                "   ██║   ██████╔╝███████║██████╔╝█████╗   ███╔╝  ██║   ██║██║██║  ██║█████╗  \n"
+                "   ██║   ██╔══██╗██╔══██║██╔═══╝ ██╔══╝   ███╔╝  ██║   ██║██║██║  ██║██╔══╝  \n"
+                "   ██║   ██║  ██║██║  ██║██║     ███████╗███████╗╚██████╔╝██║██████╔╝███████╗\n"
+                "   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚══════╝╚══════╝ ╚═════╝ ╚═╝╚═════╝ ╚══════╝\n"
+            ),
+            "cinese": (
+                "梯形\n"
+            ),
+        }
 
-        self.label_altezza = tk.Label(self.frame_inputs, text=self.translations[self.current_language]["altezza"], font=self.font_labels, bg="#FFFFFF", fg="#333333")
-        self.label_altezza.grid(row=2, column=0, padx=5, pady=5, sticky="e")
-        self.entry_altezza = tk.Entry(self.frame_inputs, font=self.font_labels, width=20, borderwidth=1, relief="solid")
-        self.entry_altezza.grid(row=2, column=1, padx=5, pady=5)
+        # Creazione degli attributi dell'interfaccia utente
+        self.create_widgets()
+        self.apply_theme(self.current_theme)
+        self.update_texts()
 
-        # Pulsante per calcolare
-        self.button_calcola = tk.Button(root, text=self.translations[self.current_language]["calculate"], font=self.font_button, bg="#28A745", fg="white", activebackground="#218838", activeforeground="white", command=self.calcola, relief="raised", borderwidth=1)
-        self.button_calcola.grid(row=3, column=0, columnspan=2, pady=10)
+    def create_widgets(self):
+        # Logo e titolo
+        self.label_logo = tk.Label(self.root, text=self.get_logo(), font=("Courier", 10), bg=self.theme["bg"],
+                                   fg=self.theme["fg"], anchor="center", justify="center")
+        self.label_logo.grid(row=0, column=0, columnspan=2, pady=10, padx=10, sticky="ew")
 
-        # Pulsante per mostrare le formule
-        self.button_formule = tk.Button(root, text=self.translations[self.current_language]["formula_title"], font=self.font_button, bg="#007ACC", fg="white", activebackground="#0056A0", activeforeground="white", command=self.mostra_formule, relief="raised", borderwidth=1)
-        self.button_formule.grid(row=4, column=0, columnspan=2, pady=10)
+        self.label_title = tk.Label(self.root, text=self.translations[self.current_language]["title"],
+                                    font=("Arial", 14), bg=self.theme["bg"], fg=self.theme["fg"], anchor="center")
+        self.label_title.grid(row=1, column=0, columnspan=2, pady=10, padx=10, sticky="ew")
 
-        # Etichetta per il risultato
-        self.label_risultato = tk.Label(root, text="", font=self.font_result, bg="#F5F5F5", fg="#0056A0", wraplength=350)
-        self.label_risultato.grid(row=5, column=0, columnspan=2, pady=10)
+        # Frame per i campi di input
+        self.frame_inputs = tk.Frame(self.root, bg=self.theme["formula_bg"])
+        self.frame_inputs.grid(row=2, column=0, columnspan=2, pady=10, padx=10, sticky="ew")
 
-        # Menu a discesa per la selezione della lingua
-        self.language_var = tk.StringVar(value=self.current_language)
-        self.language_menu = ttk.Combobox(root, textvariable=self.language_var, values=["italiano", "english", "deutch", "Español", "中国人"], state="readonly")
-        self.language_menu.grid(row=6, column=0, padx=10, pady=10, sticky="w")
-        self.language_menu.bind("<<ComboboxSelected>>", self.cambia_lingua)
+        self.label_base_maggiore = tk.Label(self.frame_inputs,
+                                            text=self.translations[self.current_language]["base_maggiore"],
+                                            bg=self.theme["formula_bg"], fg=self.theme["label_fg"])
+        self.label_base_maggiore.grid(row=0, column=0, pady=5, sticky="e")
 
-        # Crediti in fondo
-        self.label_crediti = tk.Label(root, text="Sviluppato da Leo - 2024", font=self.font_error, bg="#F5F5F5", fg="#6C757D")
-        self.label_crediti.grid(row=6, column=1, pady=10)
+        self.entry_base_maggiore = tk.Entry(self.frame_inputs, bg=self.theme["entry_bg"])
+        self.entry_base_maggiore.grid(row=0, column=1, pady=5, sticky="w")
 
-        # Espandere il frame degli input
-        root.grid_rowconfigure(2, weight=1)
-        root.grid_columnconfigure(0, weight=1)
-        root.grid_columnconfigure(1, weight=1)
+        self.label_base_minore = tk.Label(self.frame_inputs,
+                                          text=self.translations[self.current_language]["base_minore"],
+                                          bg=self.theme["formula_bg"], fg=self.theme["label_fg"])
+        self.label_base_minore.grid(row=1, column=0, pady=5, sticky="e")
+
+        self.entry_base_minore = tk.Entry(self.frame_inputs, bg=self.theme["entry_bg"])
+        self.entry_base_minore.grid(row=1, column=1, pady=5, sticky="w")
+
+        self.label_altezza = tk.Label(self.frame_inputs, text=self.translations[self.current_language]["altezza"],
+                                      bg=self.theme["formula_bg"], fg=self.theme["label_fg"])
+        self.label_altezza.grid(row=2, column=0, pady=5, sticky="e")
+
+        self.entry_altezza = tk.Entry(self.frame_inputs, bg=self.theme["entry_bg"])
+        self.entry_altezza.grid(row=2, column=1, pady=5, sticky="w")
+
+        # Bottone Calcola
+        self.button_calcola = tk.Button(self.root, text=self.translations[self.current_language]["calculate"],
+                                        command=self.calcola, bg=self.theme["button_bg"], fg=self.theme["button_fg"])
+        self.button_calcola.grid(row=3, column=0, pady=10, padx=10, sticky="ew")
+
+        # Bottone Formule
+        self.button_formule = tk.Button(self.root, text=self.translations[self.current_language]["formula_title"],
+                                        command=self.mostra_formule, bg="#FFC300", fg="black")
+        self.button_formule.grid(row=3, column=1, pady=10, padx=10, sticky="ew")
+
+        # Etichetta Risultato
+        self.label_risultato = tk.Label(self.root, text="", bg=self.theme["bg"], fg=self.theme["result_fg"])
+        self.label_risultato.grid(row=4, column=0, columnspan=2, pady=10, padx=10, sticky="ew")
+
+        # Bottone Tema
+        self.button_theme = tk.Button(self.root, text=self.translations[self.current_language]["theme"],
+                                      command=self.toggle_theme, bg="#FF5733", fg="#FFFFFF")
+        self.button_theme.grid(row=5, column=0, pady=10, padx=10, sticky="ew")
+
+        # Menu Lingua
+        self.language_menu = ttk.Combobox(self.root, values=["italiano", "inglese", "spagnolo", "cinese"],
+                                          state="readonly")
+        self.language_menu.set(self.current_language)
+        self.language_menu.grid(row=5, column=1, pady=10, padx=10, sticky="ew")
+        self.language_menu.bind("<<ComboboxSelected>>", self.change_language)
 
     def get_logo(self):
-        return (
-            "████████╗██████╗  █████╗ ██████╗ ███████╗███████╗██╗ ██████╗ \n"
-            "╚══██╔══╝██╔══██╗██╔══██╗██╔══██╗██╔════╝╚══███╔╝██║██╔═══██╗\n"
-            "   ██║   ██████╔╝███████║██████╔╝█████╗    ███╔╝ ██║██║   ██║\n"
-            "   ██║   ██╔══██╗██╔══██║██╔═══╝ ██╔══╝   ███╔╝  ██║██║   ██║\n"
-            "   ██║   ██║  ██║██║  ██║██║     ███████╗███████╗██║╚██████╔╝\n"
-            "   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚══════╝╚══════╝╚═╝ ╚═════╝ \n"
-        )
+        return self.logos.get(self.current_language, self.logos["italiano"])
 
-    def calcola(self):
-        try:
-            # Recupera i valori inseriti
-            base_maggiore = float(self.entry_base_maggiore.get())
-            base_minore = float(self.entry_base_minore.get())
-            altezza = float(self.entry_altezza.get())
+    def apply_theme(self, theme):
+        if theme == "light":
+            self.theme = self.theme_light
+        else:
+            self.theme = self.theme_dark
 
-            # Controllo se le basi sono valide
-            if base_maggiore <= base_minore:
-                self.show_error(self.translations[self.current_language]["error_base"])
-                return
+        # Applica il tema a tutti i widget
+        self.root.configure(bg=self.theme["bg"])
+        self.label_logo.configure(bg=self.theme["bg"], fg=self.theme["fg"])
+        self.label_title.configure(bg=self.theme["bg"], fg=self.theme["fg"])
+        self.frame_inputs.configure(bg=self.theme["formula_bg"])
+        self.label_base_maggiore.configure(bg=self.theme["formula_bg"], fg=self.theme["label_fg"])
+        self.label_base_minore.configure(bg=self.theme["formula_bg"], fg=self.theme["label_fg"])
+        self.label_altezza.configure(bg=self.theme["formula_bg"], fg=self.theme["label_fg"])
+        self.button_calcola.configure(bg=self.theme["button_bg"], fg=self.theme["button_fg"])
+        self.button_formule.configure(bg="#FFC300", fg="black")
+        self.label_risultato.configure(bg=self.theme["bg"], fg=self.theme["result_fg"])
+        self.button_theme.configure(bg="#FF5733", fg="#FFFFFF")
+        self.language_menu.configure(style="TCombobox")
 
-            # Inizio misurazione tempo
-            start_time = time.time()
+    def toggle_theme(self):
+        self.current_theme = "dark" if self.current_theme == "light" else "light"
+        self.apply_theme(self.current_theme)
 
-            # Calcolo area e perimetro
-            area = self.calcola_area(base_maggiore, base_minore, altezza)
-            perimetro = self.calcola_perimetro(base_maggiore, base_minore, altezza)
-
-            # Fine misurazione tempo
-            end_time = time.time()
-
-            # Calcolo tempo impiegato in millisecondi
-            tempo_impiegato = (end_time - start_time) * 1000
-
-            # Mostra i risultati
-            risultato = f"Area: {area:.2f} metri quadrati\nPerimetro: {perimetro:.2f} metri\nTempo impiegato: {tempo_impiegato:.2f} ms"
-            self.label_risultato.config(text=risultato, fg="#0056A0")
-
-            # Mostra il grafico del trapezio
-            self.mostra_grafico(base_maggiore, base_minore, altezza)
-
-        except ValueError:
-            self.show_error(self.translations[self.current_language]["error_value"])
-
-    def show_error(self, message):
-        messagebox.showerror("Errore", message)
-        self.label_risultato.config(text=message, fg="#FF4C4C")
-
-    def calcola_area(self, base_maggiore, base_minore, altezza):
-        return ((base_maggiore + base_minore) * altezza) / 2
-
-    def calcola_perimetro(self, base_maggiore, base_minore, altezza):
-        lato_obliquo = math.sqrt(((base_maggiore - base_minore) ** 2) / 4 + altezza ** 2)
-        return base_maggiore + base_minore + 2 * lato_obliquo
-
-    def mostra_grafico(self, base_maggiore, base_minore, altezza):
-        # Calcolare la differenza tra le basi per centrare la base minore
-        base_diff = (base_maggiore - base_minore) / 2
-
-        # Coordinate dei vertici del trapezio simmetrico
-        x = np.array([0, base_maggiore, base_maggiore - base_diff, base_diff, 0])
-        y = np.array([0, 0, altezza, altezza, 0])
-
-        # Creare il grafico
-        plt.figure(figsize=(8, 6))
-        plt.plot(x, y, 'b-', linewidth=2)
-        plt.fill(x, y, 'lightblue', alpha=0.5)
-
-        # Aggiungere etichette e griglia
-        plt.title(self.translations[self.current_language]["graph_title"], fontsize=14, fontweight='bold')
-        plt.xlabel('X')
-        plt.ylabel('Y')
-        plt.grid(True)
-        plt.gca().set_aspect('equal', adjustable='box')
-
-        # Mostrare il grafico
-        plt.show()
-
-    def mostra_formule(self):
-        formula_text = self.translations[self.current_language]["formula_text"]
-        messagebox.showinfo(self.translations[self.current_language]["formula_title"], formula_text)
-
-    def cambia_lingua(self, event):
-        self.current_language = self.language_var.get()
-
-        # Aggiorna il testo dei widget
+    def update_texts(self):
         self.label_title.config(text=self.translations[self.current_language]["title"])
         self.label_base_maggiore.config(text=self.translations[self.current_language]["base_maggiore"])
         self.label_base_minore.config(text=self.translations[self.current_language]["base_minore"])
         self.label_altezza.config(text=self.translations[self.current_language]["altezza"])
         self.button_calcola.config(text=self.translations[self.current_language]["calculate"])
         self.button_formule.config(text=self.translations[self.current_language]["formula_title"])
-        self.label_risultato.config(text="", fg="#0056A0")
-        plt.title(self.translations[self.current_language]["graph_title"], fontsize=14, fontweight='bold')
+        self.button_theme.config(text=self.translations[self.current_language]["theme"])
+        self.language_menu.set(self.current_language)
+        self.label_risultato.config(text="", fg=self.theme["result_fg"])
+        self.label_logo.config(text=self.get_logo())  # Aggiorna il logo
+
+    def calcola(self):
+        try:
+            base_maggiore = float(self.entry_base_maggiore.get())
+            base_minore = float(self.entry_base_minore.get())
+            altezza = float(self.entry_altezza.get())
+
+            area = ((base_maggiore + base_minore) / 2) * altezza
+            perimetro = base_maggiore + base_minore + 2 * altezza
+
+            self.label_risultato.config(text=f"Area: {area:.2f}\nPerimetro: {perimetro:.2f}")
+
+            # Mostra il grafico
+            self.mostra_grafico(base_maggiore, base_minore, altezza)
+        except ValueError:
+            messagebox.showerror(self.translations[self.current_language]["error_title"],
+                                 self.translations[self.current_language]["error_message"])
+
+    def mostra_formule(self):
+        messagebox.showinfo(self.translations[self.current_language]["formula_title"],
+                            self.translations[self.current_language]["formulas"])
+
+    def mostra_grafico(self, base_maggiore, base_minore, altezza):
+        fig, ax = plt.subplots()
+        ax.set_title('Trapezio Isoscele')
+        ax.set_xlabel('Base')
+        ax.set_ylabel('Altezza')
+
+        # Dati del trapezio
+        x = [0, base_maggiore, base_maggiore, base_minore, 0]
+        y = [0, 0, altezza, altezza, 0]
+
+        ax.plot(x, y, marker='o')
+
+        # Mostra il grafico nell'interfaccia Tkinter
+        canvas = FigureCanvasTkAgg(fig, master=self.root)
+        canvas.draw()
+        canvas.get_tk_widget().grid(row=6, column=0, columnspan=2, pady=10, padx=10, sticky="ew")
+
+    def change_language(self, event):
+        self.current_language = self.language_menu.get()
+        self.update_texts()
+        self.apply_theme(self.current_theme)
+
 
 if __name__ == "__main__":
     root = tk.Tk()
